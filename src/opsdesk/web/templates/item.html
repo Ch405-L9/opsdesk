@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ label(item) }}{% endblock %}
+{% block content %}
+<p><a href="/area/{{ area }}">← {{ area_titles[area] }}</a></p>
+<section class="hero">
+  <div><h1>{{ label(item) }}</h1>
+  <p class="muted"><span class="badge s-{{ item.status }}">{{ item.status.replace('_',' ') }}</span> · key <code>{{ item.wb_key }}</code></p></div>
+</section>
+<div class="grid">
+<section class="card">
+  <h2 class="h2">Your workflow</h2>
+  <form method="post" action="/item/{{ item.wb_key }}/update" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>Status <select name="status">{% for s in statuses[area] %}<option value="{{ s }}" {% if s == item.status %}selected{% endif %}>{{ s.replace('_',' ') }}</option>{% endfor %}</select></label>
+    <label>Priority <select name="priority">{% for p in priorities %}<option {% if p == item.priority %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>
+    <label>Follow-up date <input type="date" name="followup_date" value="{{ item.followup_date or '' }}"></label>
+    <label>Follow-up note <input name="followup_note" value="{{ item.followup_note or '' }}" maxlength="300"></label>
+    <div class="checks">
+      <label><input type="checkbox" name="contacted" {% if item.contacted %}checked{% endif %}> Contacted</label>
+      <label><input type="checkbox" name="done" {% if item.done %}checked{% endif %}> Done</label>
+    </div>
+    <button class="btn primary">Save</button>
+  </form>
+  <form method="post" action="/item/{{ item.wb_key }}/quick" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>Add a note <textarea name="note" rows="3" maxlength="2000" placeholder="What happened?"></textarea></label>
+    <div class="row"><button class="btn" name="action" value="note">Add note</button><button class="btn ghost" name="action" value="tomorrow">Follow up tomorrow</button></div>
+  </form>
+</section>
+<section class="card">
+  <h2 class="h2">Details</h2>
+  <dl class="facts">
+  {% if area == "lead" %}
+    <dt>Score</dt><dd><span class="score">{{ item.score }}</span> {% if item.disqualified %}<span class="warn-text">({{ item.disqualified }})</span>{% endif %}</dd>
+    <dt>Website</dt><dd>{% if item.website %}<a href="{{ item.website }}" target="_blank" rel="noopener noreferrer">{{ item.website }}</a>{% else %}<span class="warn-text">No website: that's the pitch.</span>{% endif %}</dd>
+    <dt>Phone</dt><dd>{{ item.phone or "–" }}</dd><dt>Address</dt><dd>{{ item.address or "–" }}</dd>
+    <dt>Rating</dt><dd>{{ item.rating or "–" }} ({{ item.review_count or 0 }} reviews)</dd>
+    {% if item.audit %}<dt>Lighthouse</dt><dd>Performance {{ item.audit.performance }} · SEO {{ item.audit.seo }} · Accessibility {{ item.audit.accessibility }}</dd>{% endif %}
+  {% elif area == "bid" %}
+    <dt>Fit</dt><dd><span class="score">{{ item.fit }}</span> <span class="muted">(priority, not odds)</span></dd>
+    <dt>Why</dt><dd>{{ item.reasons|join("; ") }}</dd><dt>Agency</dt><dd>{{ item.agency }}</dd>
+    <dt>Amount</dt><dd>${{ "{:,.0f}".format(item.amount or 0) }}</dd><dt>Period</dt><dd>{{ item.start }} → {{ item.end }}</dd>
+    <dt>Lane</dt><dd>{{ item.lane }}</dd><dt>Award</dt><dd><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">USAspending ↗</a></dd>
+  {% else %}
+    {% set a = item.assessment or {} %}
+    <dt>Company</dt><dd>{{ item.company }}</dd><dt>Posting</dt><dd>{% if item.url %}<a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">open ↗</a>{% else %}–{% endif %}</dd>
+    <dt>Alignment</dt><dd><span class="score">{{ a.technology_alignment if a.technology_alignment is not none else "–" }}</span>/100</dd>
+    <dt>Salary</dt><dd>{{ a.salary }}</dd><dt>Blockers</dt><dd>{{ (a.blockers or ["none found"])|join(", ") }}</dd>
+    <dt>Gaps</dt><dd>{{ (a.gaps or ["none"])|join(", ") }} <span class="muted">(don't claim these)</span></dd>
+    <dt>Evidence</dt><dd>{% for m in a.matches or [] %}<span class="tag">{{ m.term }} · {{ m.evidence_id }}</span> {% endfor %}</dd>
+  {% endif %}
+  </dl>
+  {% if area == "job" %}
+  <form method="post" action="/jobs/applied/{{ item.wb_key }}" class="row">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input name="note" placeholder="How you applied (optional)" class="grow">
+    <button class="btn">I applied myself: save receipt</button>
+  </form>
+  <p class="muted small">OpsDesk never submits applications.</p>
+  {% endif %}
+</section>
+</div>
+<div class="grid">
+<section class="card"><h2 class="h2">Notes</h2>
+  {% if item.notes %}<pre class="notes">{{ item.notes }}</pre>{% else %}<p class="empty">No notes yet.</p>{% endif %}
+</section>
+<section class="card"><h2 class="h2">History</h2>
+  <ul class="history">{% for h in history %}<li><span class="muted">{{ h.created_at[:16].replace('T',' ') }}</span> {{ h.action }} <span class="tag">{{ h.actor }}</span></li>{% else %}<li class="empty">No history.</li>{% endfor %}</ul>
+</section>
+</div>
+{% endblock %}

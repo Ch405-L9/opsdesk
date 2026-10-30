@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Today{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Good to see you{% if profile.owner_name %}, {{ profile.owner_name.split()[0] }}{% endif %}.</h1>
+    <p class="muted">{{ view.overdue|length }} overdue · {{ view.today|length }} due today · {{ view.upcoming|length }} this week</p>
+  </div>
+  <div class="stats">
+    {% for area, t in tallies.items() %}
+    <a class="stat" href="/area/{{ area }}"><strong>{{ t.values()|sum }}</strong><span>{{ area_titles[area] }}</span></a>
+    {% endfor %}
+  </div>
+</section>
+{% if not profile.business_name %}
+<div class="card notice">Welcome! Set up your profile in a terminal with <code>opsdesk init</code>, or load sample data with <code>opsdesk demo</code>.</div>
+{% endif %}
+{% for bucket, title, cls in [("overdue","Overdue","bad"),("today","Due today","warn"),("upcoming","Next 7 days","info")] %}
+<section class="card">
+  <h2 class="h2 {{ cls }}">{{ title }} <span class="count">{{ view[bucket]|length }}</span></h2>
+  {% if view[bucket] %}
+  <table class="tbl">
+    <thead><tr><th>Due</th><th>Item</th><th>Note</th><th>Status</th><th><span class="sr">Actions</span></th></tr></thead>
+    <tbody>
+    {% for i in view[bucket] %}
+      <tr>
+        <td class="nowrap">{{ i.followup_date }}</td>
+        <td><a href="/item/{{ i.wb_key }}">{{ label(i) }}</a> <span class="tag">{{ i.wb_key.split(':')[0] }}</span></td>
+        <td>{{ i.followup_note }}</td>
+        <td><span class="badge s-{{ i.status }}">{{ i.status.replace('_',' ') }}</span></td>
+        <td>{% include "_quick.html" %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="empty">Nothing here. 🎉</p>{% endif %}
+</section>
+{% endfor %}
+{% endblock %}

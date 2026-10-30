@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}OpsDesk{% endblock %} · OpsDesk</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="brand" href="/"><span class="logo" aria-hidden="true">◆</span> OpsDesk</a>
+  <nav aria-label="Main">
+    {% set here = request.url.path %}
+    <a href="/" {% if here == "/" %}aria-current="page"{% endif %}>Today</a>
+    <a href="/area/lead" {% if here == "/area/lead" %}aria-current="page"{% endif %}>Leads</a>
+    <a href="/area/bid" {% if here == "/area/bid" %}aria-current="page"{% endif %}>Bids</a>
+    <a href="/area/job" {% if here == "/area/job" %}aria-current="page"{% endif %}>Jobs</a>
+    <a href="/resume" {% if here == "/resume" %}aria-current="page"{% endif %}>Resume</a>
+    <a href="/activity" {% if here == "/activity" %}aria-current="page"{% endif %}>Activity</a>
+    <a href="/settings" {% if here == "/settings" %}aria-current="page"{% endif %}>Settings</a>
+  </nav>
+  <form method="post" action="/export" class="inline">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <button class="btn primary" type="submit" title="Write the formatted Excel workbook">⇩ Export workbook</button>
+  </form>
+</header>
+<main id="main" class="wrap">
+  {% if msg %}<div class="flash ok" role="status">{{ msg }}</div>{% endif %}
+  {% if err %}<div class="flash bad" role="alert">{{ err }}</div>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="foot">OpsDesk {{ version }} · runs only on this computer · nothing is sent or submitted for you · {{ today }}</footer>
+</body>
+</html>

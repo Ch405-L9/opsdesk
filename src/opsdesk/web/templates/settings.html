@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<section class="hero"><div><h1>Settings</h1><p class="muted">Change these in a terminal: <code>opsdesk init</code> and <code>opsdesk keys set &lt;name&gt;</code>.</p></div></section>
+<div class="grid">
+<section class="card"><h2 class="h2">Profile</h2><dl class="facts">
+  <dt>Business</dt><dd>{{ profile.business_name or "–" }}</dd><dt>Owner</dt><dd>{{ profile.owner_name or "–" }}</dd>
+  <dt>Home</dt><dd>{{ profile.home_city }} {{ profile.home_state }}</dd><dt>NAICS</dt><dd>{{ profile.naics_codes|join(", ") or "–" }}</dd>
+  <dt>Certifications</dt><dd>{{ profile.set_aside_eligibility|join(", ") or "none declared" }}</dd><dt>Time zone</dt><dd>{{ profile.timezone }}</dd>
+</dl></section>
+<section class="card"><h2 class="h2">API keys and free quota</h2><dl class="facts">
+  {% for name, present in keys.items() %}<dt>{{ name }}</dt><dd>{{ "set" if present else "not set (optional)" }}</dd>{% endfor %}
+  {% for name, q in quotas.items() %}<dt>{{ name }} quota</dt><dd>{{ q.remaining }} of {{ q.usable }} {{ q.unit }} left this month</dd>{% endfor %}
+</dl></section>
+<section class="card"><h2 class="h2">Your files</h2><dl class="facts">
+  <dt>Config</dt><dd><code>{{ paths.config_dir }}</code></dd><dt>Data</dt><dd><code>{{ paths.data_dir }}</code></dd>
+</dl></section>
+</div>
+{% endblock %}

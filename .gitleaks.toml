@@ -1,0 +1,7 @@
+# Saved third-party search-result pages used as offline test fixtures contain public tracking tokens.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "offline HTML fixtures"
+paths = ['''tests/fixtures/.*\.html''', '''reference/.*/fixtures/.*\.html''']
