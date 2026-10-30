@@ -1,0 +1,64 @@
+{
+  "_README": [
+    "Limits below were VERIFIED against each provider's live endpoint on 2026-10-27.",
+    "Provenance is recorded per provider in 'note'. Re-check with: python3 tools/validate_keys.py",
+    "Only providers with a validated key are listed. See .api_keys_verified.env for what failed."
+  ],
+  "spend_posture": 0.8,
+  "_spend_posture_note": "0.8 = use 80% of each free allowance, keep 20% buffer against the provider counting differently than we do. THE MATH: Places is the only provider here that can actually bill. Its monthly_limit (1000) IS the exact Text Search Enterprise free tier, so 80% = 800 calls. One call returns up to 20 businesses, so 800 calls = ~16,000 businesses/month, free, with 200 calls of headroom. Even daily use is ~26 fresh searches/day. The 14-day cache means repeat searches cost nothing, so real usage runs well under this.",
+  "providers": {
+    "brave": {
+      "monthly_limit": 2000,
+      "unit": "requests",
+      "env_key": "BRAVE_API_KEY",
+      "note": "VERIFIED 2026-10-27: live response header x-ratelimit-limit='1, 2000' confirms a LEGACY 2,000 req/month plan at 1 req/sec. Brave retired this free tier in Feb 2026 (new keys get ~1,000/mo from a $5 credit), so this key is worth double a new one. If it is ever reissued, drop this to 1000."
+    },
+    "serpapi": {
+      "monthly_limit": 250,
+      "unit": "searches",
+      "env_key": "SERPAPI_KEY",
+      "note": "VERIFIED 2026-10-27 via the free /account endpoint: plan='Free Plan', searches_per_month=250, rate limit 250/hr. This settles a contradiction on SerpApi's own site (pricing page says 100, homepage says 250). /account reports live usage and costs nothing, so prefer it over guessing."
+    },
+    "abstract": {
+      "monthly_limit": 100,
+      "unit": "requests",
+      "env_key": "ABSTRACT_API_KEY",
+      "note": "Key VALIDATED 2026-10-27 against the company-enrichment endpoint (HTTP 200). The monthly_limit here is a PLACEHOLDER - Abstract's free allowance was not confirmed and their dashboard is the only reliable source. Check it and correct this number before leaning on this provider."
+    },
+    "places": {
+      "monthly_limit": 1000,
+      "unit": "requests",
+      "env_key": "GOOGLE_PLACES_API_KEY",
+      "note": "VERIFIED 2026-10-27. BILLS AT TEXT SEARCH ENTERPRISE ($35/1,000 after 1,000 free calls/month) because the field mask requests websiteUri + nationalPhoneNumber + rating + userRatingCount, all Enterprise-tier fields, and Google bills each request at the HIGHEST SKU of any requested field. Dropping those would reach Pro (5,000 free) but they ARE the ability signals the scorer runs on - not worth it at this volume. monthly_limit is set to the exact free tier so the ledger stops before any charge. Cache (14d) + always-request-20 keep real usage far below it."
+    },
+    "hunter": {
+      "monthly_limit": 50,
+      "unit": "searches",
+      "env_key": "HUNTER_API_KEY",
+      "note": "VERIFIED 2026-10-27 via free GET /v2/account: plan='Free', resets 2026-11-19, buckets are SEPARATE not merged - searches 50, verifications 100, credits 50. Public docs are wrong in both directions (some say 50 merged, some say 25+50). monthly_limit tracks the SEARCH bucket (50) since domain-search is what we call. Scarcest resource here: gate behind the ICP ability score."
+    },
+    "firecrawl": {
+      "monthly_limit": 1000,
+      "unit": "credits",
+      "env_key": "FIRECRAWL_API_KEY",
+      "note": "VERIFIED 2026-10-27 via free GET /v1/team/credit-usage: plan_credits=1000/month, remaining_credits=1400 at check, period 2026-10-28 to 2026-11-28. Use only for JS-heavy sites the local Playwright path cannot render; Playwright stays the default for bulk since it is unmetered."
+    },
+    "psi": {
+      "monthly_limit": 25000,
+      "unit": "requests",
+      "env_key": "GOOGLE_PSI_API_KEY",
+      "note": "VERIFIED 2026-10-27: live runPagespeed call returned Lighthouse mobile perf 67/100 for a real prospect. Google publishes 25,000/day for PSI (not independently verified here) - effectively unlimited for this use case, so the 50% posture is irrelevant. This replaces the Server-header guessing in root_scraper.py as the need-score source."
+    },
+    "upgini": {
+      "monthly_limit": 100,
+      "unit": "searches",
+      "env_key": "UPGINI_API_KEY",
+      "note": "VERIFIED 2026-10-27 end-to-end: fit() completed, search_id e436ee74-bbe1-4b2f-87c4-6eb1e5188180, 8 external features returned including postal-code realty prices and POI density. Quota NOT verified - placeholder. Requires LABELED outcomes to be useful; premature until ~30 closed deals exist. Needs its own venv (pins pandas<3)."
+    }
+  },
+  "_absent": {
+    "google_cse": "NOT a missing API - a naming mismatch. The Cloud console lists it as 'Custom Search API' (customsearch.googleapis.com); searching for 'Google CSE' returns nothing. Three different GCP projects involved; key ...vyTI fails with an API-key RESTRICTION rather than a disabled API. Direct link: https://console.cloud.google.com/apis/library/customsearch.googleapis.com",
+    "upgini": "Two distinct keys tried (43-char from main secrets file, 45-char from hunter.env.txt). Both return HTTP 401 'Invalid token issuer'. Re-issue from the Upgini dashboard if still wanted.",
+    "duckduckgo": "No general web-search API exists at any price. HTML endpoints return 403 to this host. Nothing to configure."
+  }
+}

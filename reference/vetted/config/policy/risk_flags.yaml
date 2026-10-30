@@ -1,0 +1,54 @@
+# CareerOps Local - risk flag registry.
+# The 24 flags are derived from the "Mandatory risk flags" section of PROJECT_GUARDRAILS.md.
+# tests/parity/test_canonical_enum_parity.py fails if this set drifts from that document.
+# Detection patterns are Phase 3 work and are deliberately absent here.
+
+flags:
+  - flag: PAYMENT_REQUEST
+    enabled: true
+  - flag: SENSITIVE_IDENTITY_REQUEST
+    enabled: true
+  - flag: PERSONAL_EMAIL_DOMAIN_RECRUITER
+    enabled: true
+  - flag: URL_DOMAIN_MISMATCH
+    enabled: true
+  - flag: MISSING_COMPANY_WEBSITE
+    enabled: true
+  - flag: UNVERIFIABLE_COMPANY
+    enabled: true
+  - flag: COMPENSATION_OUTLIER
+    enabled: true
+  - flag: JOB_DESCRIPTION_TOO_VAGUE
+    enabled: true
+  - flag: EXCESSIVE_URGENCY
+    enabled: true
+  - flag: CLEARANCE_REQUIRED
+    enabled: true
+  - flag: DEGREE_REQUIRED
+    enabled: true
+  - flag: WORK_AUTHORIZATION_RESTRICTION
+    enabled: true
+  - flag: LOCATION_CONFLICT
+    enabled: true
+  - flag: SALARY_CONFLICT
+    enabled: true
+  - flag: STAFFING_INTERMEDIARY
+    enabled: true
+  - flag: END_CLIENT_UNKNOWN
+    enabled: true
+  - flag: POSSIBLE_STALE_LISTING
+    enabled: true
+  - flag: POSSIBLE_DUPLICATE
+    enabled: true
+  - flag: SENIORITY_MISMATCH
+    enabled: true
+  - flag: RESEARCH_HEAVY_MISMATCH
+    enabled: true
+  - flag: MISSING_COMPENSATION
+    enabled: true
+  - flag: RELOCATION_UNKNOWN
+    enabled: true
+  - flag: REMOTE_RESTRICTION_UNKNOWN
+    enabled: true
+  - flag: REQUIRED_SKILL_GAP
+    enabled: true

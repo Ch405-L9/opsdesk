@@ -1,0 +1,23 @@
+# secrets and personal data
+.env
+*.env
+!.env.example
+.secrets*
+data/
+state/
+*.db
+*.sqlite
+*.xlsx
+*.csv
+!reference/**/fixtures/**/*.csv
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+node_modules/
