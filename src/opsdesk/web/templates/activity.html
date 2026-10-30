@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Activity{% endblock %}
+{% block content %}
+<section class="hero"><div><h1>Activity</h1><p class="muted">Everything OpsDesk did, and who did it.</p></div></section>
+<section class="card"><table class="tbl"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Item</th></tr></thead><tbody>
+{% for r in rows %}<tr><td class="nowrap">{{ r.created_at[:16].replace('T',' ') }}</td><td><span class="tag">{{ r.actor }}</span></td><td>{{ r.action }}</td><td>{% if r.wb_key %}<a href="/item/{{ r.wb_key }}">{{ r.wb_key }}</a>{% endif %}</td></tr>
+{% else %}<tr><td colspan="4" class="empty">No activity yet.</td></tr>{% endfor %}
+</tbody></table></section>
+{% endblock %}

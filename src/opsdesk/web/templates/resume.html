@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Resume evidence{% endblock %}
+{% block content %}
+<section class="hero"><div><h1>Resume evidence</h1><p class="muted">Only true, approved facts. Job assessments and resume bullets cite these ids.</p></div></section>
+{% if problem %}<div class="flash bad" role="alert">{{ problem }}</div>{% endif %}
+{% if items %}
+<section class="card"><table class="tbl"><thead><tr><th>Id</th><th>Kind</th><th>Title</th><th>Statement</th><th>Technologies</th></tr></thead><tbody>
+{% for e in items %}<tr><td><code>{{ e.id }}</code></td><td><span class="tag">{{ e.kind }}</span></td><td>{{ e.title }}</td><td>{{ e.text }}</td><td>{{ e.technologies|join(", ") }}</td></tr>{% endfor %}
+</tbody></table></section>
+{% else %}<div class="card notice">No evidence yet. Run <code>opsdesk resume init</code>, then edit <code>{{ path }}</code>.</div>{% endif %}
+{% endblock %}

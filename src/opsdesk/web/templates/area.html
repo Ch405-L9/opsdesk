@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ area_titles[area] }}{% endblock %}
+{% block content %}
+<section class="hero">
+  <div><h1>{{ area_titles[area] }}</h1><p class="muted">{{ items|length }} shown{% if status %} · status “{{ status.replace('_',' ') }}”{% endif %}</p></div>
+  <form class="search" method="get" role="search">
+    {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+    <label class="sr" for="q">Search</label>
+    <input id="q" name="q" value="{{ q }}" placeholder="Search {{ area_titles[area]|lower }}…">
+  </form>
+</section>
+<nav class="chips" aria-label="Filter by status">
+  <a href="/area/{{ area }}" class="chip {% if not status %}on{% endif %}">All</a>
+  {% for s in statuses[area] %}<a href="?status={{ s }}" class="chip {% if status == s %}on{% endif %}">{{ s.replace('_',' ') }} <b>{{ board[s]|length }}</b></a>{% endfor %}
+</nav>
+{% if area == "lead" %}
+<section class="card">
+  <h2 class="h2">Find leads</h2>
+  <form method="post" action="/leads/find" class="row">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label class="grow"><span class="sr">Search</span><input name="query" required placeholder="dentists in Austin TX"></label>
+    <select name="mode" aria-label="Source"><option value="demo">Sample data (free)</option><option value="api">Google Places (cache first)</option></select>
+    <label><span class="sr">Confirm spend</span><input name="confirm_spend" placeholder="type spend to use 1 call" size="22"></label>
+    <button class="btn primary">Search</button>
+  </form>
+</section>
+{% elif area == "job" %}
+<section class="card">
+  <details><summary class="h2">Add a job (paste a capture)</summary>
+  <form method="post" action="/jobs/add">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <textarea name="capture_text" rows="12" required>title: 
+company: 
+url: 
+location: 
+arrangement: remote
+employment: full_time
+salary_min: 
+salary_max: 
+closes: 
+required:
+- 
+preferred:
+- 
+---
+Paste the posting text here.</textarea>
+    <button class="btn primary">Save and assess</button>
+  </form></details>
+</section>
+{% elif area == "bid" and not items %}
+<div class="card notice">No bids yet. In a terminal: <code>opsdesk init --naics 541511</code> then <code>opsdesk bids fetch</code>.</div>
+{% endif %}
+{% if items %}
+<section class="card">
+<table class="tbl" data-sortable>
+  <thead><tr>
+    <th>{{ "Business" if area=="lead" else ("Buyer — incumbent" if area=="bid" else "Job") }}</th>
+    {% if area=="lead" %}<th>Score</th><th>Website</th><th>Phone</th>{% elif area=="bid" %}<th>Fit</th><th>Amount</th><th>Ends</th>{% else %}<th>Alignment</th><th>Arrangement</th><th>Closes</th>{% endif %}
+    <th>Status</th><th>Priority</th><th>Follow-up</th><th><span class="sr">Actions</span></th>
+  </tr></thead>
+  <tbody>
+  {% for i in items %}
+  <tr class="{% if i.status in closed %}closed{% endif %}">
+    <td><a href="/item/{{ i.wb_key }}">{{ label(i) }}</a>{% if i.get('demo') %} <span class="tag">demo</span>{% endif %}</td>
+    {% if area=="lead" %}<td><span class="score">{{ i.score }}</span></td><td>{% if i.website %}<a href="{{ i.website }}" rel="noopener noreferrer" target="_blank">site ↗</a>{% else %}<span class="warn-text">no website</span>{% endif %}</td><td class="nowrap">{{ i.phone or "" }}</td>
+    {% elif area=="bid" %}<td><span class="score">{{ i.fit }}</span></td><td class="nowrap">${{ "{:,.0f}".format(i.amount or 0) }}</td><td class="nowrap">{{ i.end }}</td>
+    {% else %}<td><span class="score">{{ (i.assessment or {}).technology_alignment if (i.assessment or {}).technology_alignment is not none else "–" }}</span></td><td>{{ i.arrangement }}</td><td class="nowrap">{{ i.closes or "" }}</td>{% endif %}
+    <td><span class="badge s-{{ i.status }}">{{ i.status.replace('_',' ') }}</span></td>
+    <td><span class="pri p-{{ i.priority }}">{{ i.priority }}</span></td>
+    <td class="nowrap {% if i.followup_date and i.followup_date < today and not i.done %}overdue{% endif %}">{{ i.followup_date or "" }}</td>
+    <td>{% include "_quick.html" %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</section>
+{% endif %}
+{% endblock %}
