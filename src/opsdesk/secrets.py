@@ -12,8 +12,6 @@ from opsdesk.paths import AppPaths
 KEYS: dict[str, str] = {
     "google_places": "GOOGLE_PLACES_API_KEY",
     "pagespeed": "PAGESPEED_API_KEY",
-    "sam_gov": "SAM_GOV_API_KEY",
-    "hunter": "HUNTER_API_KEY",
 }
 
 

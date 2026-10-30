@@ -34,13 +34,13 @@ opsdesk = "opsdesk.cli:main"
 packages = ["src/opsdesk"]
 
 [tool.hatch.build.targets.sdist]
-exclude = ["reference", "Build the OpsDesk local-first command center", "manus_token_exhausted_context.txt"]
+exclude = [".venv"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py312"
 src = ["src", "tests"]
-extend-exclude = ["reference", "Build the OpsDesk local-first command center"]
+extend-exclude = [".venv"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
